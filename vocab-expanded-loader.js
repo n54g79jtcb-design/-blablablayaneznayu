@@ -104,14 +104,14 @@
 
     const loaded = {};
     const errors = [];
-    for (const group of SOURCE_GROUPS) {
-      for (const file of group.files) {
-        try { loaded[file] = await fetchCSV(file); }
-        catch (err) { loaded[file] = []; errors.push(`${file}: ${err?.message || err}`); }
-      }
-    }
+    const files = [...new Set(SOURCE_GROUPS.flatMap(g => g.files))];
+    const results = await Promise.all(files.map(async file => {
+      try { return [file, await fetchCSV(file), null]; }
+      catch (err) { return [file, [], `${file}: ${err?.message || err}`]; }
+    }));
+    results.forEach(([file, rows, error]) => { loaded[file] = rows; if (error) errors.push(error); });
 
-    // First fill each CEFR bucket from the closest Yonsei volume(s).
+    // Fill each CEFR bucket from the closest Yonsei volume(s).
     for (const group of SOURCE_GROUPS) {
       for (const file of group.files) {
         for (const row of loaded[file]) {
@@ -122,8 +122,7 @@
       }
     }
 
-    // Safety fallback: if deduplication leaves a bucket short, use unused entries
-    // from the complete loaded pool while keeping the requested 750/level balance.
+    // If deduplication leaves a level short, use unused entries from the whole pool.
     const allRows = SOURCE_GROUPS.flatMap(g => g.files.flatMap(f => loaded[f] || []));
     for (const level of ["A1", "A2", "B1", "B2"]) {
       if (counts[level] >= TARGET_PER_LEVEL[level]) continue;
@@ -133,7 +132,6 @@
       }
     }
 
-    // Never expose more than the requested total if a future source changes.
     if (arr.length > TARGET_TOTAL) arr.splice(TARGET_TOTAL);
 
     const status = { total: arr.length, counts, target: TARGET_TOTAL, errors };
