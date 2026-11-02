@@ -6,3 +6,6 @@ function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;",
 
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 updateProgress();renderLevels();renderTopics();renderViewFilters();renderWords();renderModeSwitch();renderTestSettings();startTest();renderProgress();
+
+// Load pronunciation and Hangul learning after the core UI is ready.
+if(!document.querySelector('script[data-hangul-pronunciation]')){const s=document.createElement("script");s.src="./hangul-pronunciation.js";s.dataset.hangulPronunciation="1";document.body.appendChild(s);}
