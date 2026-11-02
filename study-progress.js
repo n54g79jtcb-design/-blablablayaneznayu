@@ -4,6 +4,11 @@ function renderProgress(){const sec=$("progressSection");if(!sec)return;const le
 }
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
 
+// Moodboard theme: soft pearl pink, lace-like texture and glass cards.
+if(!document.querySelector('link[data-mood-theme]')){const l=document.createElement("link");l.rel="stylesheet";l.href="./mood-theme.css";l.dataset.moodTheme="1";document.head.appendChild(l)}
+const themeMeta=document.querySelector('meta[name="theme-color"]');if(themeMeta)themeMeta.setAttribute("content","#fff5f8");
+const statusMeta=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(statusMeta)statusMeta.setAttribute("content","default");
+
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 
 async function bootStudyApp(){
