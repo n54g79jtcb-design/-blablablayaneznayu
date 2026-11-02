@@ -56,7 +56,7 @@
   }
 
   async function signUp(email,password){
-    return authFetch("/auth/v1/signup",{method:"POST",body:JSON.stringify({email,password,data:{app:"korean-study"}})});
+    return authFetch("/auth/v1/signup",{method:"POST",headers:{"Redirect-To":"https://n54g79jtcb-design.github.io/-blablablayaneznayu/"},body:JSON.stringify({email,password,data:{app:"korean-study"}})});
   }
   async function signIn(email,password){
     const data=await authFetch("/auth/v1/token?grant_type=password",{method:"POST",body:JSON.stringify({email,password})});
