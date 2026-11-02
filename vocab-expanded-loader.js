@@ -86,7 +86,7 @@
 
   function addCredit(total) {
     const heading = document.querySelector("#vocab .section-head h2");
-    if (heading) heading.textContent = `Vocabulary A1 → B2 · ${total.toLocaleString()} words`;
+    if (heading) heading.textContent = "Vocabulary";
     if (!document.getElementById("expandedVocabCredit")) {
       const credit = document.createElement("div");
       credit.id = "expandedVocabCredit";
@@ -111,7 +111,6 @@
     }));
     results.forEach(([file, rows, error]) => { loaded[file] = rows; if (error) errors.push(error); });
 
-    // Fill each CEFR bucket from the closest Yonsei volume(s).
     for (const group of SOURCE_GROUPS) {
       for (const file of group.files) {
         for (const row of loaded[file]) {
@@ -122,7 +121,6 @@
       }
     }
 
-    // If deduplication leaves a level short, use unused entries from the whole pool.
     const allRows = SOURCE_GROUPS.flatMap(g => g.files.flatMap(f => loaded[f] || []));
     for (const level of ["A1", "A2", "B1", "B2"]) {
       if (counts[level] >= TARGET_PER_LEVEL[level]) continue;
