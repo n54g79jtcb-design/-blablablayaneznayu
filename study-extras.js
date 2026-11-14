@@ -141,7 +141,7 @@ function renderSpeaking() {
       recognition.onresult=e=>{lastTranscript=e.results[0][0].transcript;$("extraSpeechInput").value=lastTranscript;$("extraSpeakStatus").textContent="Heard: "+lastTranscript;};
       recognition.onerror=e=>{$("extraSpeakStatus").textContent="Speech recognition: "+e.error+". You can type your answer instead.";};
       recognition.onend=()=>{recognition=null;};
-      speechSynthesis?.cancel();recognition.start();
+      if("speechSynthesis" in window)window.speechSynthesis.cancel();recognition.start();
     }catch(e){$("extraSpeakStatus").textContent="Microphone unavailable: "+e.message;}
   };
   $("extraEvaluate").onclick=()=>evaluateSpoken(false);
@@ -166,6 +166,9 @@ async function evaluateSpoken(withAI) {
     const data=await rsp.json().catch(()=>({}));
     if(!rsp.ok)throw new Error(data.error||data.message||("AI feedback unavailable ("+rsp.status+")"));
     slot.innerHTML+='<div class="extra-feedback"><b>✨ AI Korean Tutor</b><p style="white-space:pre-wrap">'+esc(data.reply||"")+'</p></div>';
+    const spokenLine=String(data.reply||"").split("\n").find(x=>/[가-힣]/.test(x));
+    if(spokenLine){const voiceBtn=document.createElement("button");voiceBtn.className="plus-btn secondary";voiceBtn.textContent="▶ Hear tutor’s Korean";voiceBtn.onclick=()=>speak(spokenLine);slot.appendChild(voiceBtn);}
+
     reward(5,"AI Speaking");
   }catch(e){slot.innerHTML+='<p><b>AI Tutor:</b> '+esc(e.message)+'. Your local speaking practice is still saved.</p>';}
 }
@@ -181,7 +184,7 @@ function makeQueue() {
     else if(!sr && (!st || st.status==="new") && allowed.includes(w.level))fresh.push(w);
   }
   const ids=new Set(),arr=[];
-  for(const candidates of [shuffle(due),shuffle(learning),shuffle(fresh),shuffle(words)]){
+  for(const candidates of [shuffle(due),shuffle(learning),shuffle(fresh),shuffle(words.filter(w=>allowed.includes(w.level)))]){
     for(const w of candidates){const k=keyFor(w);if(ids.has(k))continue;arr.push(w);ids.add(k);if(arr.length===10)break;}
     if(arr.length===10)break;
   }
@@ -216,13 +219,17 @@ function rateWord(grade,w) {
     const s=get("wordStateV2",{}),k=keyFor(w),v=s[k]||{status:"new",correct:0,wrong:0};
     v[good?"correct":"wrong"]=(v[good?"correct":"wrong"]||0)+1;v.status=good?"learning":"learning";s[k]=v;set("wordStateV2",s);
   }
-  const state=get(SRS,{}),k=keyFor(w),old=state[k]||{interval:0,streak:0},last=old.interval||0;
-  let days=0;
-  if(grade==="again"){days=0;old.streak=0;}
-  if(grade==="hard"){days=Math.max(1,Math.round(last*1.2));old.streak=Math.max(1,old.streak||0);}
-  if(grade==="good"){days=Math.max(2,Math.round(last*2));old.streak=(old.streak||0)+1;}
-  if(grade==="easy"){days=Math.max(5,Math.round(last*2.6));old.streak=(old.streak||0)+1;}
-  old.interval=days;old.due=dateAfter(days);state[k]=old;set(SRS,state);
+  if(window.KoreanSRS?.rate)window.KoreanSRS.rate(w,grade);
+  else {
+    const state=get(SRS,{}),k=keyFor(w),old=state[k]||{interval:0,streak:0},last=old.interval||0;
+    let days=0;
+    if(grade==="again"){days=0;old.streak=0;}
+    if(grade==="hard"){days=Math.max(1,Math.round(last*1.2));old.streak=Math.max(1,old.streak||0);}
+    if(grade==="good"){days=Math.max(2,Math.round(last*2));old.streak=(old.streak||0)+1;}
+    if(grade==="easy"){days=Math.max(5,Math.round(last*2.6));old.streak=(old.streak||0)+1;}
+    old.interval=days;old.due=dateAfter(days);state[k]=old;set(SRS,state);
+  
+  }
   if(typeof bumpPractice==="function")bumpPractice(1);
   else {const a=get("activityDaysV2",[]);if(!a.includes(today())){a.push(today());set("activityDaysV2",a);}}
   if(typeof stats!=="undefined"&&typeof saveStats==="function"){stats[good?"correct":"wrong"]=(stats[good?"correct":"wrong"]||0)+1;saveStats();}
