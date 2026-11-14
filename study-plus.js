@@ -11,6 +11,13 @@
 
   function srsState(item){const k=wordKey(item);return srs[k]||(srs[k]={interval:0,due:todayKey(),streak:0});}
   function schedule(item,correct){if(!item)return;const st=srsState(item);if(correct){st.streak++;st.interval=st.streak===1?1:st.streak===2?3:st.streak===3?7:Math.min(60,Math.max(14,Math.round(st.interval*1.8)));}else{st.streak=0;st.interval=1;}st.due=dueDate(st.interval);save();}
+  window.KoreanSRS={rate(item,grade){if(!item)return;const st=srsState(item),last=Number(st.interval||0);let days=0;
+    if(grade==="again"){days=0;st.streak=0;}
+    if(grade==="hard"){days=Math.max(1,Math.round(last*1.2));st.streak=Math.max(1,Number(st.streak||0));}
+    if(grade==="good"){days=Math.max(2,Math.round(last*2));st.streak=Number(st.streak||0)+1;}
+    if(grade==="easy"){days=Math.max(5,Math.round(last*2.6));st.streak=Number(st.streak||0)+1;}
+    st.interval=days;const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+days);st.due=d.toLocaleDateString("en-CA");save();return st;
+  }};
   function markKnown(item){const st=getState(item);st.status="learned";st.correct=Math.max(st.correct||0,3);saveWordState();const sr=srsState(item);sr.streak=Math.max(sr.streak,4);sr.interval=30;sr.due=dueDate(30);save();renderWords();renderProgress();}
 
   const oldUpdate=typeof updateWordResult==="function"?updateWordResult:null;
