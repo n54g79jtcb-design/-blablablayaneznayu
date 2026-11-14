@@ -118,8 +118,8 @@
 
   function renderStudyPlus(){
     const sec=$("studyPlusSection");if(!sec)return;const wotd=wordOfDay(),ach=achievementData();
-    sec.innerHTML=`<div class="section-head plus-head"><div><div class="eyebrow">✧ angel study room ✧</div><h2>Study+</h2><p>Smart review, listening, real Korean and custom practice.</p></div><button class="soft-action" id="themeToggle">${document.body.classList.contains("night-pink")?"☀ Pearl":"☾ Moon"}</button></div>
-    <div class="plus-hero"><div><span class="mini-label">WORD OF THE DAY · 5</span><h3>Today’s little bouquet</h3><p>Five words selected from your library for today.</p></div><div class="daily-words">${wotd.map(v=>`<button data-wotd="${encodeURIComponent(wordKey(v))}"><b>${esc(v.ko)}</b><span>${esc(v.en)}</span><small>${v.level}</small></button>`).join("")}</div></div>
+    sec.innerHTML=`<div class="section-head plus-head"><div><h2>Study+</h2><p>Smart review, listening, real Korean and custom practice.</p></div><button class="soft-action" id="themeToggle">${document.body.classList.contains("night-pink")?"☀ Pearl":"☾ Moon"}</button></div>
+    <div class="plus-hero"><div><span class="mini-label">WORD OF THE DAY · 5</span><p>Five words selected from your library for today.</p></div><div class="daily-words">${wotd.map(v=>`<button data-wotd="${encodeURIComponent(wordKey(v))}"><b>${esc(v.ko)}</b><span>${esc(v.en)}</span><small>${v.level}</small></button>`).join("")}</div></div>
     <div class="plus-grid">
       <button class="feature-card" data-run="srs"><b>✦ Spaced Review</b><span>Review words exactly when they are due.</span></button>
       <button class="feature-card" data-run="listening"><b>🔊 Listening Test</b><span>Hear Korean without seeing the word.</span></button>
