@@ -1,4 +1,4 @@
-const CACHE_NAME="korean-study-v20";
+const CACHE_NAME="korean-study-v21";
 const ASSETS=["./","./index.html","./manifest.webmanifest","./icon.svg","./mood-theme.css","./study-core.js","./grammar-master.js","./grammar-ui.js","./study-practice.js","./study-progress.js","./study-plus.js","./level-plan.js","./auth-cloud.js","./advanced-learning.js","./study-extras.js","./hangul-pronunciation.js","./vocab-expanded-loader.js","./vocab-a1.js","./vocab-a2.js","./vocab-b1.js","./vocab-b2.js"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))));self.clients.claim()});
